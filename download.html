@@ -83,6 +83,26 @@
             color: #c62828;
             border-left: 4px solid #c62828;
         }
+        .search-box {
+            width: 100%;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: #d40000;
+            box-shadow: 0 0 0 2px rgba(212, 0, 0, 0.2);
+        }
+        .count-info {
+            text-align: center;
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
 
         @media only screen and (max-width: 600px) {
             .content {
@@ -115,6 +135,8 @@
     <!-- 知识展示卡片 -->
     <div class="content">
         <h1>全且杂乱的列表</h1>
+        <input type="text" class="search-box" id="search-input" placeholder="搜索知识内容...">
+        <div id="count-info" class="count-info"></div>
         <div id="knowledge-container"></div>
     </div>
 
@@ -124,7 +146,10 @@
             const copyBtn = document.getElementById('copy-btn');
             const messageDiv = document.getElementById('message');
             const knowledgeContainer = document.getElementById('knowledge-container');
+            const searchInput = document.getElementById('search-input');
+            const countInfo = document.getElementById('count-info');
             let knowledgeContent = '';
+            let allItems = [];
             
             // 加载并显示文件内容
             fetch('smallzhishi.txt')
@@ -134,12 +159,24 @@
                 })
                 .then(text => {
                     knowledgeContent = text;
-                    displayKnowledgeItems(text);
+                    allItems = text.split('\n').filter(item => item.trim() !== '');
+                    displayKnowledgeItems(allItems);
+                    updateCountInfo(allItems.length, allItems.length);
                 })
                 .catch(error => {
                     showMessage('加载失败: ' + error.message, 'error');
                     console.error('加载文件出错:', error);
                 });
+            
+            // 搜索功能
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const filteredItems = allItems.filter(item => 
+                    item.toLowerCase().includes(searchTerm)
+                );
+                displayKnowledgeItems(filteredItems);
+                updateCountInfo(filteredItems.length, allItems.length);
+            });
             
             // 下载功能
             downloadBtn.addEventListener('click', function() {
@@ -179,13 +216,11 @@
             });
             
             // 显示知识条目
-            function displayKnowledgeItems(text) {
+            function displayKnowledgeItems(items) {
                 knowledgeContainer.innerHTML = ''; // 清空容器
                 
-                const items = text.split('\n').filter(item => item.trim() !== '');
-                
                 if (items.length === 0) {
-                    knowledgeContainer.innerHTML = '<div class="knowledge-item">暂无知识内容</div>';
+                    knowledgeContainer.innerHTML = '<div class="knowledge-item">没有找到匹配的知识</div>';
                     return;
                 }
                 
@@ -195,6 +230,15 @@
                     itemElement.textContent = item;
                     knowledgeContainer.appendChild(itemElement);
                 });
+            }
+            
+            // 更新计数信息
+            function updateCountInfo(displayCount, totalCount) {
+                if (searchInput.value) {
+                    countInfo.textContent = `显示 ${displayCount} 条（共 ${totalCount} 条）`;
+                } else {
+                    countInfo.textContent = `共 ${totalCount} 条知识`;
+                }
             }
             
             function showMessage(msg, type) {
