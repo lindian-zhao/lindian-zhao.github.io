@@ -55,9 +55,16 @@
         }
         .slider-container {
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            min-width: 250px;
+        }
+        .slider-wrapper {
+            display: flex;
             align-items: center;
             gap: 10px;
-            min-width: 250px;
+            width: 100%;
         }
         .slider {
             flex-grow: 1;
@@ -86,6 +93,12 @@
             text-align: center;
             font-weight: bold;
         }
+        .slider-caption {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            width: 100%;
+        }
         h1 {
             color: #d40000;
             margin: 0 0 20px;
@@ -103,8 +116,11 @@
         <div id="info-container">
             <div class="controls">
                 <div class="slider-container">
-                    <input type="range" min="5" max="20" value="10" class="slider" id="count-slider">
-                    <span class="count-display" id="count-display">10</span>
+                    <div class="slider-wrapper">
+                        <input type="range" min="5" max="20" value="10" class="slider" id="count-slider">
+                        <span class="count-display" id="count-display">10</span>
+                    </div>
+                    <div class="slider-caption">拖动以选择刷新数量</div>
                 </div>
                 <button class="refresh-btn" id="refresh-btn">换一换</button>
             </div>
@@ -115,6 +131,7 @@
     <div class="content">
         <h1>更新日志</h1>
         <div id="changelog-container">
+            <div class="info-item">2023-10-21: 添加滑块使用说明文字</div>
             <div class="info-item">2023-10-20: 新增拖动选择条数功能(5-20条)</div>
             <div class="info-item">2023-10-15: 新增50条京剧小知识</div>
             <div class="info-item">2023-10-10: 优化页面布局和响应速度</div>
