@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>京剧知识后台管理</title>
+    <title>京剧杂七杂八小知识收集之地</title>
     <style>
         body {
             font-family: "Microsoft YaHei", sans-serif;
@@ -11,15 +11,19 @@
             padding: 20px 5%;
             background-color: #f5f5f5;
             box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-        .content {
+        .download-container {
             width: 90%;
-            margin: 0 auto 20px;
+            max-width: 500px;
             background-color: white;
-            padding: 20px;
+            padding: 30px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            box-sizing: border-box;
+            text-align: center;
         }
         h1 {
             color: #d40000;
@@ -27,27 +31,9 @@
             text-align: center;
             padding-bottom: 15px;
             border-bottom: 2px solid #f0f0f0;
-            font-size: 24px;
         }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: inherit;
-            font-size: 16px;
-            min-height: 100px;
-            resize: vertical;
-        }
-        .add-btn {
-            padding: 12px 20px;
+        .download-btn {
+            padding: 12px 24px;
             background-color: #d40000;
             color: white;
             border: none;
@@ -56,16 +42,15 @@
             font-size: 16px;
             transition: all 0.3s;
         }
-        .add-btn:hover {
+        .download-btn:hover {
             background-color: #a30000;
             transform: translateY(-2px);
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
         .message {
             margin-top: 15px;
-            padding: 10px 15px;
+            padding: 10px;
             border-radius: 4px;
-            text-align: center;
             display: none;
         }
         .success {
@@ -79,74 +64,58 @@
             border-left: 4px solid #c62828;
         }
 
-        /* 手机屏幕适配 */
         @media only screen and (max-width: 600px) {
-            .content {
+            .download-container {
                 width: 96%;
-                padding: 15px;
-            }
-            body {
-                padding: 15px 2%;
-            }
-            h1 {
-                font-size: 20px;
+                padding: 20px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="content">
-        <h1>京剧知识后台管理</h1>
-        <div class="input-group">
-            <textarea id="knowledge-input" placeholder="请输入要添加的京剧知识（每行一条）"></textarea>
-            <button class="add-btn" id="add-btn">添加到知识库</button>
-            <div id="message" class="message"></div>
-        </div>
+    <div class="download-container">
+        <h1>京剧杂七杂八小知识</h1>
+        <button class="download-btn" id="download-btn">下载全部杂七杂八知识</button>
+        <div id="message" class="message"></div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const knowledgeInput = document.getElementById('knowledge-input');
-            const addBtn = document.getElementById('add-btn');
+            const downloadBtn = document.getElementById('download-btn');
             const messageDiv = document.getElementById('message');
             
-            addBtn.addEventListener('click', function() {
-                const content = knowledgeInput.value.trim();
-                if (!content) {
-                    showMessage('请输入有效内容', 'error');
-                    return;
-                }
-                
-                // 发送数据到后端处理
-                fetch('save_knowledge.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'knowledge=' + encodeURIComponent(content)
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('保存失败');
-                    }
-                    return response.text();
-                })
-                .then(data => {
-                    showMessage('知识添加成功！', 'success');
-                    knowledgeInput.value = '';
-                })
-                .catch(error => {
-                    showMessage('添加失败: ' + error.message, 'error');
-                    console.error('保存出错:', error);
-                });
+            downloadBtn.addEventListener('click', function() {
+                fetch('smallzhishi.txt')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('文件加载失败');
+                        }
+                        return response.text();
+                    })
+                    .then(text => {
+                        // 创建下载链接
+                        const blob = new Blob([text], { type: 'text/plain' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = '杂七杂八知识.txt';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        
+                        showMessage('下载已开始', 'success');
+                    })
+                    .catch(error => {
+                        showMessage('下载失败: ' + error.message, 'error');
+                        console.error('下载出错:', error);
+                    });
             });
             
             function showMessage(msg, type) {
                 messageDiv.textContent = msg;
                 messageDiv.className = 'message ' + type;
                 messageDiv.style.display = 'block';
-                
-                // 3秒后自动隐藏
                 setTimeout(() => {
                     messageDiv.style.display = 'none';
                 }, 3000);
