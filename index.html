@@ -8,19 +8,17 @@
         body {
             font-family: "Microsoft YaHei", sans-serif;
             margin: 0;
-            padding: 20px 50px; /* 左右各50px内边距 */
+            padding: 20px 50px;
             background-color: #f5f5f5;
             box-sizing: border-box;
         }
         .content {
-            width: calc(100% - 100px); /* 屏幕宽度减去100px */
-            max-width: 100%; /* 移除之前的800px限制 */
-            margin: 0 auto;
+            width: calc(100% - 100px);
+            margin: 0 auto 20px;
             background-color: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
             box-sizing: border-box;
         }
         .info-item {
@@ -57,13 +55,31 @@
             border-bottom: 2px solid #f0f0f0;
             font-size: 24px;
         }
+        .changelog-item {
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-left: 4px solid #d40000;
+            background-color: #fff9f9;
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body>
+    <!-- 随机知识卡片 -->
     <div class="content">
         <h1>随机一些知识</h1>
         <div id="info-container">
             <button class="refresh-btn" id="refresh-btn">换一换</button>
+        </div>
+    </div>
+
+    <!-- 新增的更新日志卡片 -->
+    <div class="content">
+        <h1>更新日志</h1>
+        <div id="changelog-container">
+            <div class="info-item">2023-10-15: 新增50条京剧小知识</div>
+            <div class="info-item">2023-10-10: 优化页面布局和响应速度</div>
+            <div class="info-item">2023-10-05: 首次版本发布，包含100条基础知识</div>
         </div>
     </div>
 
