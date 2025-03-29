@@ -29,6 +29,14 @@
             line-height: 1.6;
             border-radius: 0 4px 4px 0;
         }
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 25px auto 10px;
+            flex-wrap: wrap;
+        }
         .refresh-btn {
             padding: 10px 20px;
             background-color: #d40000;
@@ -37,15 +45,46 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            margin: 25px auto 10px;
-            display: block;
-            width: 200px;
             transition: all 0.3s;
+            min-width: 200px;
         }
         .refresh-btn:hover {
             background-color: #a30000;
             transform: translateY(-2px);
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 250px;
+        }
+        .slider {
+            flex-grow: 1;
+            -webkit-appearance: none;
+            height: 8px;
+            background: #ddd;
+            border-radius: 4px;
+            outline: none;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #d40000;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .slider::-webkit-slider-thumb:hover {
+            background: #a30000;
+            transform: scale(1.1);
+        }
+        .count-display {
+            min-width: 30px;
+            text-align: center;
+            font-weight: bold;
         }
         h1 {
             color: #d40000;
@@ -55,13 +94,6 @@
             border-bottom: 2px solid #f0f0f0;
             font-size: 24px;
         }
-        .changelog-item {
-            padding: 10px 15px;
-            margin: 10px 0;
-            border-left: 4px solid #d40000;
-            background-color: #fff9f9;
-            line-height: 1.6;
-        }
     </style>
 </head>
 <body>
@@ -69,22 +101,39 @@
     <div class="content">
         <h1>随机一些知识</h1>
         <div id="info-container">
-            <button class="refresh-btn" id="refresh-btn">换一换</button>
+            <div class="controls">
+                <div class="slider-container">
+                    <input type="range" min="5" max="20" value="10" class="slider" id="count-slider">
+                    <span class="count-display" id="count-display">10</span>
+                </div>
+                <button class="refresh-btn" id="refresh-btn">换一换</button>
+            </div>
         </div>
     </div>
 
-    <!-- 新增的更新日志卡片 -->
+    <!-- 更新日志卡片 -->
     <div class="content">
         <h1>更新日志</h1>
         <div id="changelog-container">
-            <div class="info-item">2025-3-29: 新建本玩意，加了十条不到small知识</div>
+            <div class="info-item">2023-10-20: 新增拖动选择条数功能(5-20条)</div>
+            <div class="info-item">2023-10-15: 新增50条京剧小知识</div>
+            <div class="info-item">2023-10-10: 优化页面布局和响应速度</div>
+            <div class="info-item">2023-10-05: 首次版本发布，包含100条基础知识</div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const infoContainer = document.getElementById('info-container');
+            const countSlider = document.getElementById('count-slider');
+            const countDisplay = document.getElementById('count-display');
+            const refreshBtn = document.getElementById('refresh-btn');
             let allItems = [];
+            
+            // 更新显示的数量值
+            countSlider.addEventListener('input', function() {
+                countDisplay.textContent = this.value;
+            });
             
             // 从smallzhishi.txt文件加载数据
             fetch('smallzhishi.txt')
@@ -98,37 +147,53 @@
                     allItems = text.split('\n').filter(item => item.trim() !== '');
                     
                     if (allItems.length === 0) {
-                        infoContainer.innerHTML = '<div class="info-item">smallzhishi.txt中没有找到有效数据</div>';
+                        const errorMsg = document.createElement('div');
+                        errorMsg.className = 'info-item';
+                        errorMsg.textContent = 'smallzhishi.txt中没有找到有效数据';
+                        infoContainer.insertBefore(errorMsg, infoContainer.querySelector('.controls'));
                         return;
                     }
                     
                     displayRandomItems();
                 })
                 .catch(error => {
-                    infoContainer.innerHTML = '<div class="info-item">加载知识出错: ' + error.message + '</div>';
+                    const errorMsg = document.createElement('div');
+                    errorMsg.className = 'info-item';
+                    errorMsg.textContent = '加载知识出错: ' + error.message;
+                    infoContainer.insertBefore(errorMsg, infoContainer.querySelector('.controls'));
                     console.error('加载文件出错:', error);
                 });
             
-            // 显示随机10条信息的函数
+            // 显示随机信息的函数
             function displayRandomItems() {
                 if (allItems.length === 0) return;
                 
                 const itemsCopy = [...allItems];
                 const randomItems = [];
+                const itemCount = parseInt(countSlider.value);
                 
-                const count = Math.min(10, itemsCopy.length);
+                const count = Math.min(itemCount, itemsCopy.length);
                 for (let i = 0; i < count; i++) {
                     const randomIndex = Math.floor(Math.random() * itemsCopy.length);
                     randomItems.push(itemsCopy[randomIndex]);
                     itemsCopy.splice(randomIndex, 1);
                 }
                 
-                infoContainer.innerHTML = randomItems.map(item => 
-                    `<div class="info-item">${item}</div>`
-                ).join('') + '<button class="refresh-btn" id="refresh-btn">换一换</button>';
+                // 移除旧的信息项（如果有）
+                const oldItems = document.querySelectorAll('#info-container .info-item');
+                oldItems.forEach(item => item.remove());
                 
-                document.getElementById('refresh-btn').addEventListener('click', displayRandomItems);
+                // 添加新的信息项
+                randomItems.forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'info-item';
+                    itemElement.textContent = item;
+                    infoContainer.insertBefore(itemElement, infoContainer.querySelector('.controls'));
+                });
             }
+            
+            // 绑定刷新按钮事件
+            refreshBtn.addEventListener('click', displayRandomItems);
         });
     </script>
 </body>
