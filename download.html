@@ -32,7 +32,13 @@
             padding-bottom: 15px;
             border-bottom: 2px solid #f0f0f0;
         }
-        .download-btn {
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .download-btn, .copy-btn {
             padding: 12px 24px;
             background-color: #d40000;
             color: white;
@@ -42,10 +48,16 @@
             font-size: 16px;
             transition: all 0.3s;
         }
-        .download-btn:hover {
+        .download-btn:hover, .copy-btn:hover {
             background-color: #a30000;
             transform: translateY(-2px);
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .copy-btn {
+            background-color: #4a4a4a;
+        }
+        .copy-btn:hover {
+            background-color: #333;
         }
         .message {
             margin-top: 15px;
@@ -75,40 +87,67 @@
 <body>
     <div class="download-container">
         <h1>京剧杂七杂八小知识</h1>
-        <button class="download-btn" id="download-btn">下载全部杂七杂八知识</button>
+        <div class="btn-group">
+            <button class="download-btn" id="download-btn">下载全部杂七杂八知识</button>
+            <button class="copy-btn" id="copy-btn">复制全部内容到剪贴板</button>
+        </div>
         <div id="message" class="message"></div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const downloadBtn = document.getElementById('download-btn');
+            const copyBtn = document.getElementById('copy-btn');
             const messageDiv = document.getElementById('message');
+            let knowledgeContent = '';
             
+            // 预加载文件内容
+            fetch('smallzhishi.txt')
+                .then(response => {
+                    if (!response.ok) throw new Error('文件加载失败');
+                    return response.text();
+                })
+                .then(text => {
+                    knowledgeContent = text;
+                })
+                .catch(error => {
+                    console.error('加载文件出错:', error);
+                });
+            
+            // 下载功能
             downloadBtn.addEventListener('click', function() {
-                fetch('smallzhishi.txt')
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('文件加载失败');
-                        }
-                        return response.text();
+                if (!knowledgeContent) {
+                    showMessage('内容加载中，请稍后再试', 'error');
+                    return;
+                }
+                
+                const blob = new Blob([knowledgeContent], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = '京剧杂七杂八知识.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showMessage('下载已开始', 'success');
+            });
+            
+            // 复制到剪贴板功能
+            copyBtn.addEventListener('click', function() {
+                if (!knowledgeContent) {
+                    showMessage('内容加载中，请稍后再试', 'error');
+                    return;
+                }
+                
+                navigator.clipboard.writeText(knowledgeContent)
+                    .then(() => {
+                        showMessage('内容已复制到剪贴板', 'success');
                     })
-                    .then(text => {
-                        // 创建下载链接
-                        const blob = new Blob([text], { type: 'text/plain' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = '杂七杂八知识.txt';
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                        
-                        showMessage('下载已开始', 'success');
-                    })
-                    .catch(error => {
-                        showMessage('下载失败: ' + error.message, 'error');
-                        console.error('下载出错:', error);
+                    .catch(err => {
+                        showMessage('复制失败: ' + err.message, 'error');
+                        console.error('复制失败:', err);
                     });
             });
             
