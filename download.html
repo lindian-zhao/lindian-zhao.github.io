@@ -11,35 +11,25 @@
             padding: 20px 5%;
             background-color: #f5f5f5;
             box-sizing: border-box;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
         }
-        .download-container {
+        .content {
             width: 90%;
-            max-width: 500px;
+            margin: 0 auto 20px;
             background-color: white;
-            padding: 30px;
+            padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        h1 {
-            color: #d40000;
-            margin: 0 0 20px;
-            text-align: center;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
+            box-sizing: border-box;
         }
         .btn-group {
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             gap: 15px;
-            margin-top: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
         }
         .download-btn, .copy-btn {
-            padding: 12px 24px;
+            padding: 10px 20px;
             background-color: #d40000;
             color: white;
             border: none;
@@ -48,21 +38,39 @@
             font-size: 16px;
             transition: all 0.3s;
         }
+        .copy-btn {
+            background-color: #4a4a4a;
+        }
         .download-btn:hover, .copy-btn:hover {
-            background-color: #a30000;
             transform: translateY(-2px);
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
-        .copy-btn {
-            background-color: #4a4a4a;
+        .download-btn:hover {
+            background-color: #a30000;
         }
         .copy-btn:hover {
             background-color: #333;
         }
+        h1 {
+            color: #d40000;
+            margin: 0 0 20px;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            font-size: 24px;
+        }
+        .knowledge-item {
+            padding: 10px 15px;
+            margin: 8px 0;
+            border-left: 3px solid #d40000;
+            background-color: #fff9f9;
+            line-height: 1.5;
+        }
         .message {
-            margin-top: 15px;
+            margin: 15px 0;
             padding: 10px;
             border-radius: 4px;
+            text-align: center;
             display: none;
         }
         .success {
@@ -77,21 +85,37 @@
         }
 
         @media only screen and (max-width: 600px) {
-            .download-container {
+            .content {
                 width: 96%;
-                padding: 20px;
+                padding: 15px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            .btn-group {
+                flex-direction: column;
+            }
+            .download-btn, .copy-btn {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
-    <div class="download-container">
+    <!-- 下载控制卡片 -->
+    <div class="content">
         <h1>京剧杂七杂八小知识</h1>
         <div class="btn-group">
-            <button class="download-btn" id="download-btn">下载全部杂七杂八知识</button>
-            <button class="copy-btn" id="copy-btn">复制全部内容到剪贴板</button>
+            <button class="download-btn" id="download-btn">下载全部知识</button>
+            <button class="copy-btn" id="copy-btn">复制全部内容</button>
         </div>
         <div id="message" class="message"></div>
+    </div>
+
+    <!-- 知识展示卡片 -->
+    <div class="content">
+        <h1>全部知识列表</h1>
+        <div id="knowledge-container"></div>
     </div>
 
     <script>
@@ -99,9 +123,10 @@
             const downloadBtn = document.getElementById('download-btn');
             const copyBtn = document.getElementById('copy-btn');
             const messageDiv = document.getElementById('message');
+            const knowledgeContainer = document.getElementById('knowledge-container');
             let knowledgeContent = '';
             
-            // 预加载文件内容
+            // 加载并显示文件内容
             fetch('smallzhishi.txt')
                 .then(response => {
                     if (!response.ok) throw new Error('文件加载失败');
@@ -109,15 +134,17 @@
                 })
                 .then(text => {
                     knowledgeContent = text;
+                    displayKnowledgeItems(text);
                 })
                 .catch(error => {
+                    showMessage('加载失败: ' + error.message, 'error');
                     console.error('加载文件出错:', error);
                 });
             
             // 下载功能
             downloadBtn.addEventListener('click', function() {
                 if (!knowledgeContent) {
-                    showMessage('内容加载中，请稍后再试', 'error');
+                    showMessage('内容未加载，请稍后再试', 'error');
                     return;
                 }
                 
@@ -134,10 +161,10 @@
                 showMessage('下载已开始', 'success');
             });
             
-            // 复制到剪贴板功能
+            // 复制功能
             copyBtn.addEventListener('click', function() {
                 if (!knowledgeContent) {
-                    showMessage('内容加载中，请稍后再试', 'error');
+                    showMessage('内容未加载，请稍后再试', 'error');
                     return;
                 }
                 
@@ -150,6 +177,25 @@
                         console.error('复制失败:', err);
                     });
             });
+            
+            // 显示知识条目
+            function displayKnowledgeItems(text) {
+                knowledgeContainer.innerHTML = ''; // 清空容器
+                
+                const items = text.split('\n').filter(item => item.trim() !== '');
+                
+                if (items.length === 0) {
+                    knowledgeContainer.innerHTML = '<div class="knowledge-item">暂无知识内容</div>';
+                    return;
+                }
+                
+                items.forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'knowledge-item';
+                    itemElement.textContent = item;
+                    knowledgeContainer.appendChild(itemElement);
+                });
+            }
             
             function showMessage(msg, type) {
                 messageDiv.textContent = msg;
