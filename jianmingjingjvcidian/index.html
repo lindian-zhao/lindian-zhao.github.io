@@ -12,7 +12,7 @@
             background-color: #f5f5f5;
         }
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
             background-color: white;
             padding: 20px;
@@ -46,12 +46,18 @@
         #clear-btn:hover {
             background-color: #e0e0e0;
         }
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
         .card {
             border: 1px solid #ddd;
             border-radius: 4px;
             padding: 15px;
-            margin-bottom: 15px;
             background-color: white;
+            height: 100%;
+            box-sizing: border-box;
         }
         .card-title {
             font-weight: bold;
@@ -71,6 +77,14 @@
             text-align: center;
             color: #666;
             padding: 20px;
+            grid-column: 1 / -1;
+        }
+        
+        /* 响应式设计 - 小屏幕时变为单列 */
+        @media (max-width: 768px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -83,7 +97,7 @@
             <button id="clear-btn">清除</button>
         </div>
         
-        <div id="cards-container">
+        <div class="cards-grid" id="cards-container">
             <!-- 卡片将在这里动态生成 -->
         </div>
     </div>
