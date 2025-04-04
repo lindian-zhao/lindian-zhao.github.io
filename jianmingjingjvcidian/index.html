@@ -65,6 +65,10 @@
             color: #c12;
             margin-bottom: 10px;
         }
+        .highlight {
+            background-color: #ffeb3b;
+            padding: 0 2px;
+        }
         .card-content {
             line-height: 1.6;
         }
@@ -93,7 +97,7 @@
         <h1>简明京剧词典</h1>
         
         <div class="search-box">
-            <input type="text" id="search-input" placeholder="输入关键词搜索标题...">
+            <input type="text" id="search-input" placeholder="输入关键词搜索标题（支持模糊匹配）...">
             <button id="clear-btn">清除</button>
         </div>
         
@@ -129,14 +133,22 @@
             }
         }
         
+        // 高亮匹配文本
+        function highlightText(text, searchTerm) {
+            if (!searchTerm) return text;
+            
+            const regex = new RegExp(searchTerm.split('').join('.*?'), 'gi');
+            return text.replace(regex, match => `<span class="highlight">${match}</span>`);
+        }
+        
         // 创建卡片
-        function createCard(title, content) {
+        function createCard(title, content, searchTerm = '') {
             const card = document.createElement('div');
             card.className = 'card';
             
             const titleElement = document.createElement('div');
             titleElement.className = 'card-title';
-            titleElement.textContent = title;
+            titleElement.innerHTML = highlightText(title, searchTerm);
             
             const divider = document.createElement('div');
             divider.className = 'divider';
@@ -152,21 +164,36 @@
             return card;
         }
         
+        // 检查是否匹配搜索词（模糊匹配）
+        function isMatch(text, searchTerm) {
+            if (!searchTerm) return true;
+            
+            const lowerText = text.toLowerCase();
+            const lowerSearch = searchTerm.toLowerCase();
+            
+            // 简单实现：检查所有字符是否按顺序出现
+            let index = 0;
+            for (const char of lowerSearch) {
+                index = lowerText.indexOf(char, index);
+                if (index === -1) return false;
+                index++;
+            }
+            return true;
+        }
+        
         // 显示所有卡片
-        function displayCards(titles, contents, filter = '') {
+        function displayCards(titles, contents, searchTerm = '') {
             const container = document.getElementById('cards-container');
             container.innerHTML = '';
             
-            const lowerFilter = filter.toLowerCase();
             let hasResults = false;
             
             for (let i = 0; i < titles.length; i++) {
                 const title = titles[i];
                 const content = contents[i];
                 
-                // 只搜索标题(mulu.txt内容)，不搜索正文(neirong.txt内容)
-                if (!filter || title.toLowerCase().includes(lowerFilter)) {
-                    const card = createCard(title, content);
+                if (isMatch(title, searchTerm)) {
+                    const card = createCard(title, content, searchTerm);
                     container.appendChild(card);
                     hasResults = true;
                 }
@@ -187,7 +214,7 @@
             // 初始显示所有卡片
             displayCards(titles, contents);
             
-            // 搜索功能 - 只搜索标题
+            // 搜索功能 - 模糊匹配标题
             const searchInput = document.getElementById('search-input');
             searchInput.addEventListener('input', () => {
                 displayCards(titles, contents, searchInput.value);
