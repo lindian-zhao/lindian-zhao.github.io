@@ -54,10 +54,10 @@
             min-width: 200px;
         }
         .nav-btn {
-            background-color: #000000; /* 改为黑色背景 */
-            color: white; /* 白色文字 */
+            background-color: #000000;
+            color: white;
             width: 50%;
-            margin: 0 auto;
+            margin: 0 auto 20px; /* 修改了这一行，添加底部20px间距 */
         }
         .refresh-btn:hover, .nav-btn:hover {
             transform: translateY(-2px);
@@ -67,7 +67,7 @@
             background-color: #a30000;
         }
         .nav-btn:hover {
-            background-color: #333333; /* 深灰色悬停状态 */
+            background-color: #333333;
         }
         .slider-container {
             display: flex;
@@ -140,6 +140,7 @@
             .nav-btn {
                 width: 80%;
                 font-size: 14px;
+                margin: 0 auto 20px; /* 保持一致的底部间距 */
             }
             .slider-container {
                 min-width: 200px;
