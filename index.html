@@ -172,14 +172,16 @@
     <!-- 其他界面卡片 -->
     <div class="content">
         <h1>其他界面</h1>
-        <a href="https://lindian-zhao.github.io/download" class="nav-btn" target="_blank">总列表查看、搜索与下载</a>
-        <a href="https://lindian-zhao.github.io/jianmingjingjvcidian/" class="nav-btn" target="_green">《简明京剧词典》（暂非完整版）</a>
+        <a href="download.html" class="nav-btn" target="_blank">总列表查看、搜索与下载</a>
+        <a href="jianmingjingjvcidian/index.html" class="nav-btn" target="_green">《简明京剧词典》（暂非完整版）</a>
+        <a href="jvben/index.html" class="nav-btn" target="_green">一些剧本</a>
     </div>
 
     <!-- 更新日志卡片 -->
     <div class="content">
         <h1>更新日志</h1>
         <div id="changelog-container">
+            <div class="info-item">2025-04-18: 迎来第一次因为一时兴起而开始的莫名其妙的无有大用的界面改动与文件精简</div>
             <div class="info-item">2025-04-04: 添加小半本《简明京剧词典》</div>
             <div class="info-item">2025-03-30: 添加新页面</div>
             <div class="info-item">2025-03-29: 一时兴起创建本玩意（ps：其实大部分都是deepseek写的~</div>
@@ -194,7 +196,6 @@
             const refreshBtn = document.getElementById('refresh-btn');
             let allItems = [];
             
-            // 更新显示的数量值
             countSlider.addEventListener('input', function() {
                 countDisplay.textContent = this.value;
             });
